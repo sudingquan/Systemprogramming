@@ -10,13 +10,21 @@
 #include <pwd.h>
 #include <string.h>
 #include <errno.h>
-
+#include <signal.h>
+#include <stdlib.h>
 
 void parsecmd(char *s) {
     if (!strncasecmp(s, "cd", 2)) {
-        if(chdir(s + 3) != 0) {
+        if (strlen(s) == 2) {
+            struct passwd *user;
+            int uid = getuid();
+            user = getpwuid(uid);
+            chdir(user->pw_dir);
+        } else if (chdir(s + 3) != 0) {
             printf("-bash: cd: %s: %s\n", s + 3, strerror(errno));
         }
+    } else if (!strncasecmp(s, "exit", 4)) {
+        exit(0);
     }
 }
 int main() {
@@ -27,6 +35,7 @@ int main() {
     char cmd[1005];
     user = getpwuid(uid);
     gethostname(hostname, sizeof(hostname));
+    signal(SIGINT,SIG_IGN);
     while (1) {
         int homelenth = strlen(user->pw_dir);
         getcwd(pwd, 100);
