@@ -1,5 +1,5 @@
 /*************************************************************************
-	> File Name: example.c
+	> File Name: terminal.c
 	> Author: sudingquan
 	> Mail: 1151015256@qq.com
 	> Created Time: 五  4/26 13:46:21 2019
