@@ -15,25 +15,6 @@
 #include <grp.h>
 #include <time.h>
 
-//判断文件类型
-char *getfiletype(int mode) {
-    if (S_ISREG(mode)) {
-        return "-";
-    } else if (S_ISDIR(mode)) {
-        return "d";
-    } else if (S_ISLNK(mode)) {
-        return "l";
-    } else if (S_ISCHR(mode)) {
-        return "c";
-    } else if (S_ISBLK(mode)) {
-        return "b";
-    } else if (S_ISFIFO(mode)) {
-        return "p";
-    } else {
-        return "s";
-    }
-}
-
 //将st_mode的值转换成ls-al的权限形式
 void getmod(int mode, char *mod) {
     //判断文件类型
