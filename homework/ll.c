@@ -11,6 +11,94 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <dirent.h>
+#include <pwd.h>
+#include <grp.h>
+#include <time.h>
+
+//判断文件类型
+char *getfiletype(int mode) {
+    if (S_ISREG(mode)) {
+        return "-";
+    } else if (S_ISDIR(mode)) {
+        return "d";
+    } else if (S_ISLNK(mode)) {
+        return "l";
+    } else if (S_ISCHR(mode)) {
+        return "c";
+    } else if (S_ISBLK(mode)) {
+        return "b";
+    } else if (S_ISFIFO(mode)) {
+        return "p";
+    } else {
+        return "s";
+    }
+}
+
+//将st_mode的值转换成ls-al的权限形式
+void getmod(int mode, char *mod) {
+    //判断文件类型
+    if (S_ISREG(mode)) {
+        mod[0] = '-';
+    } else if (S_ISDIR(mode)) {
+        mod[0] = 'd';
+    } else if (S_ISLNK(mode)) {
+        mod[0] = 'l';
+    } else if (S_ISCHR(mode)) {
+        mod[0] = 'c';
+    } else if (S_ISBLK(mode)) {
+        mod[0] = 'b';
+    } else if (S_ISFIFO(mode)) {
+        mod[0] = 'p';
+    } else {
+        mod[0] = 's';
+    }
+    //判断各个用户的rwx权限
+    if (mode & S_IRUSR) {
+        mod[1] = 'r';
+    } else {
+        mod[1] = '-';
+    }
+    if (mode & S_IWUSR) {
+        mod[2] = 'w';
+    } else {
+        mod[2] = '-';
+    }
+    if (mode & S_IXUSR) {
+        mod[3] = 'x';
+    } else {
+        mod[3] = '-';
+    }
+    if (mode & S_IRGRP) {
+        mod[4] = 'r';
+    } else {
+        mod[4] = '-';
+    }
+    if (mode & S_IWGRP) {
+        mod[5] = 'w';
+    } else {
+        mod[5] = '-';
+    }
+    if (mode & S_IXGRP) {
+        mod[6] = 'x';
+    } else {
+        mod[6] = '-';
+    }
+    if (mode & S_IROTH) {
+        mod[7] = 'r';
+    } else {
+        mod[7] = '-';
+    }
+    if (mode & S_IWOTH) {
+        mod[8] = 'w';
+    } else {
+        mod[8] = '-';
+    }
+    if (mode & S_IXOTH) {
+        mod[9] = 'x';
+    } else {
+        mod[9] = '-';
+    }
+}
 
 //判断输入的路径是目录还是文件
 int ispath(char *path) {
@@ -22,7 +110,6 @@ int ispath(char *path) {
         return 0;
     }
 }
-
 //输出文件的各个信息
 void showinfo(char *name) {
     struct stat *file = malloc(sizeof(struct stat));
@@ -30,13 +117,22 @@ void showinfo(char *name) {
         perror("stat");
         return;
     }
-    printf("%d\t", file->st_mode);
-    printf("%d\t", file->st_nlink);
-    printf("%d\t", file->st_uid);
-    printf("%d\t", file->st_gid);
-    printf("%lld\t", file->st_size);
+    struct passwd *usr;
+    usr = getpwuid(file->st_uid);
+    struct group *grp;
+    grp = getgrgid(file->st_gid);
+    struct tm *t = localtime(&file->st_mtime);
+    char mod[11];
+    getmod(file->st_mode, mod);
+    printf("%s\t", mod);
+    printf("%3d", file->st_nlink);
+    printf("%15s\t", usr->pw_name);
+    printf("%15s\t", grp->gr_name);
+    printf("%20lld\t", file->st_size);
+    printf("%2d %2d %02d:%02d\t", t->tm_mon + 1, t->tm_mday, t->tm_hour, t->tm_min);
     printf("%s\n", name);
 }
+
 //输出指定文件夹的所有文件的信息
 void showdirinfo(char *dirname) {
     DIR *dir = opendir(dirname);
@@ -67,7 +163,9 @@ int main(int argc, char *argv[]) {
                 printf("%s:\n", argv[i]);
                 showinfo(argv[i]);
             }
-            printf("\n");
+            if (i < argc - 1) {
+                printf("\n");
+            }
         }
     }
     return 0;
