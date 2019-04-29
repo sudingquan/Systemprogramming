@@ -6,9 +6,31 @@
  ************************************************************************/
 
 #include <stdio.h>
-#include <passwd.h>
+#include <unistd.h>
+#include <pwd.h>
+#include <string.h>
+#include <errno.h>
+#include <signal.h>
+#include <stdlib.h>
 
-void getUsername() {
-    struct passwd *pwd = getpwuid(getuid());
+//获得当前用户的用户名
+char *getUsername() {
+    struct passwd *usr = getpwuid(getuid());
 
+    return usr->pw_name;
+}
+
+//获得当前工作目录
+char *getPwd() {
+    char *pwd;
+    getcwd(pwd, 100);
+    return pwd;
+}
+
+int main(int argc, char *argv[]) {
+    char *hostname = malloc(sizeof(char) * 100);
+    gethostname(hostname, sizeof(hostname));
+    printf("%s\n", getUsername);
+    //printf("%s@%s:%s $ \n", getUsername, hostname, getPwd());
+    return 0;
 }
