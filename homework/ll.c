@@ -105,12 +105,12 @@ void showinfo(char *name) {
     struct tm *t = localtime(&file->st_mtime);
     char mod[11];
     getmod(file->st_mode, mod);
-    printf("%s\t", mod);
-    printf("%3d", file->st_nlink);
-    printf("%15s\t", usr->pw_name);
-    printf("%15s\t", grp->gr_name);
-    printf("%20lld\t", file->st_size);
-    printf("%2d %2d %02d:%02d\t", t->tm_mon + 1, t->tm_mday, t->tm_hour, t->tm_min);
+    printf("%s  ", mod);
+    printf("%3d ", file->st_nlink);
+    printf("%-15s ", usr->pw_name);
+    printf("%-15s ", grp->gr_name);
+    printf("%-20lld ", file->st_size);
+    printf("%2d %2d %02d:%02d ", t->tm_mon + 1, t->tm_mday, t->tm_hour, t->tm_min);
     printf("%s\n", name);
 }
 
