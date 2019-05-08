@@ -14,6 +14,7 @@
 #include <pwd.h>
 #include <grp.h>
 #include <time.h>
+#include <string.h>
 
 //将st_mode的值转换成ls-al的权限形式
 void getmod(int mode, char *mod) {
@@ -90,6 +91,7 @@ int ispath(char *path) {
     } else {
         return 0;
     }
+    free(st);
 }
 //输出文件的各个信息
 void showinfo(char *name) {
@@ -112,9 +114,10 @@ void showinfo(char *name) {
     printf("%-20lld ", file->st_size);
     printf("%2d %2d %02d:%02d ", t->tm_mon + 1, t->tm_mday, t->tm_hour, t->tm_min);
     printf("%s\n", name);
+    free(file);
 }
 
-//输出指定文件夹的所有文件的信息
+//输出指定目录的所有文件的信息
 void showdirinfo(char *dirname) {
     DIR *dir = opendir(dirname);
     if (dir == NULL) {
@@ -132,20 +135,96 @@ void showdirinfo(char *dirname) {
     chdir(pwd);
 }
 
+//输出文件名称
+void showname(char *name) {
+    struct stat *file = malloc(sizeof(struct stat));
+    if (stat(name, file) < 0) {
+        perror("stat");
+        return;
+    }
+    printf("%s\n", name);
+}
+
+//得到指定目录的非隐藏文件名称
+void getdirname(char *dirname, char fileName[][100],int *sum){
+    DIR *dir = opendir(dirname);
+    if (dir == NULL) {
+        perror("opendir");
+        return;
+    }
+    struct dirent *entry;
+    char pwd[100];
+    getcwd(pwd,100);
+    chdir(dirname);
+    printf("%s:\n", dirname);
+    int i = 0;
+    while ((entry = readdir(dir)) != NULL) {
+        if (!strncmp(entry->d_name, ".", 1)) {
+            continue;
+        }
+        strncpy(fileName[i], entry->d_name, strlen(entry->d_name));
+        fileName[i][strlen(entry->d_name)] = '\0';
+        i++;
+    }
+    chdir(pwd);
+    *sum = i;
+}
+
+//输出文件名称
+void showdirname(char *dirname) {
+   // char **fileName = (char **)malloc(sizeof(char *) * 10000);
+   // for (int i = 0; i < 10000; i++) {
+   //     fileName[i] = (char*)malloc(sizeof(char) * 100);
+   // }
+    char fileName[10000][100];
+    int sum = 0;    
+    getdirname(dirname, fileName, &sum);
+    for (int i = 0; i < sum; i++) {
+        printf("%s\n", fileName[i]);
+    }
+}
+
+
 int main(int argc, char *argv[]) {
     //参数缺省时，默认为当前目录
+    //选项缺省时默认为ls
     if (argc == 1) {
-        showdirinfo(".");
+        showdirname(".");
     } else if (argc >= 2) {
-        for (int i = 1; i < argc; i++) {
-            if (ispath(argv[i])) {
-                showdirinfo(argv[i]);
+        if (!strncmp(argv[1], "-", 1)) {
+            char option[10];
+            strncpy(option, argv[1] + 1, strlen(argv[1]) - 1);
+            option[strlen(argv[1]) - 1] = '\0';
+            if (strlen(option) == 2 && strncmp(option, "al", 2) == 0) {
+                if (argc == 2) {
+                    showdirinfo(".");
+                } else {
+                    for (int i = 2; i < argc; i++) {
+                        if (ispath(argv[i])) {
+                            showdirinfo(argv[i]);
+                        } else {
+                            printf("%s:\n", argv[i]);
+                            showinfo(argv[i]);
+                        }
+                        if (i < argc - 1) {
+                            printf("\n");
+                        }
+                    }
+                }   
             } else {
-                printf("%s:\n", argv[i]);
-                showinfo(argv[i]);
+                printf("%s: illegal option -- %s\n", argv[0], option);
             }
-            if (i < argc - 1) {
-                printf("\n");
+        } else {
+            for (int i = 1; i < argc; i++) {
+                if (ispath(argv[i])) {
+                    showdirname(argv[i]);
+                } else {
+                    printf("%s:\n", argv[i]);
+                    showname(argv[i]);
+                }
+                if (i < argc - 1) {
+                    printf("\n");
+                }
             }
         }
     }
