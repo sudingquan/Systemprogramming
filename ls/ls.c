@@ -126,7 +126,7 @@ void showdirinfo(char *dirname) {
     }
     struct dirent *entry;
     char pwd[100];
-    getcwd(pwd,100);
+    getcwd(pwd, 100);
     chdir(dirname);
     printf("%s:\n", dirname);
     while ((entry = readdir(dir)) != NULL) {
