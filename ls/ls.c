@@ -145,6 +145,11 @@ void showname(char *name) {
     printf("%s\n", name);
 }
 
+//对得到的文件名按字典序排序
+void sort_file_name(char fileName[][100], int i) {
+    
+}
+
 //得到指定目录的非隐藏文件名称
 void getdirname(char *dirname, char fileName[][100],int *sum){
     DIR *dir = opendir(dirname);
@@ -168,6 +173,7 @@ void getdirname(char *dirname, char fileName[][100],int *sum){
     }
     chdir(pwd);
     *sum = i;
+    sort_file_name(fileName, i);
 }
 
 //输出文件名称
