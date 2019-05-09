@@ -210,7 +210,7 @@ void showdirname(char *dirname) {
         perror("ioctl TIOCGWINSZ error");
         exit(1);
     }
-    printf("%d rows, %d columns\n", size.ws_row, size.ws_col);
+    //printf("%d rows, %d columns\n", size.ws_row, size.ws_col);
     for (int i = 2; i <= ceil(max_list / 2.0); i++) {
         int width = 0;
         int sum_width = 0;
@@ -248,14 +248,27 @@ void showdirname(char *dirname) {
             line = ceil((double)max_list / col);
         }
     }
-    cout << "col:"  << col << endl;
+    cout << "col:"  << col << "\t";
     cout << "line:"  << line << endl;
+    int *col_longest = new int [col];
+    for (int i = 0; i < col; i++) {
+        if (i == col - 1) {
+            col_longest[i] = getnamelen(fileName + i * line,last_line);
+        } else {
+            col_longest[i] = getnamelen(fileName + i * line, line);
+        }
+    }
     for (int i = 0; i < line; i++) {
         for (int j = 0 ; j < col; j++) {
-            cout << fileName[i + j * line] << " ";
+            cout << fileName[i + j * line];
+            int name_size = fileName[i + j  *  line].size();
+            for (int k = 0; k <= col_longest[j] - name_size;  k++) {
+                cout << " ";
+            }
         }
         cout << endl;
     }
+    delete[] col_longest;
 }
 
 int main(int argc, char *argv[]) {
