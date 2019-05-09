@@ -31,3 +31,7 @@
 6. `ls -al`加入多个参数
 
    ![ls -al . .. ../.. ../../..](https://github.com/sudingquan/pic/raw/master/ls-al....png)
+
+7. `ls`小窗口输出
+
+   ![small_ls](https://github.com/sudingquan/pic/blob/master/small_ls.png?raw=true)
