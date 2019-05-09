@@ -8,5 +8,5 @@
 │   └── terminal_2.0.c
 └── ls
     ├── README.md
-    └── ls.c
+    └── ls.cpp
 ```
