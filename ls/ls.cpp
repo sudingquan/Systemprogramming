@@ -18,6 +18,9 @@
 #include <algorithm>
 #include <string>
 #include <iostream>
+#include <sys/ioctl.h>
+#include <math.h>
+#define MAX_N 10000
 
 using namespace std;
 
@@ -151,7 +154,7 @@ void showname(char *name) {
 }
 
 //得到指定目录的非隐藏文件名称
-void getdirname(char *dirname, string fileName[10000],int *sum){
+void getdirname(char *dirname, string fileName[MAX_N],int *sum){
     DIR *dir = opendir(dirname);
     if (dir == NULL) {
         perror("opendir");
@@ -175,8 +178,16 @@ void getdirname(char *dirname, string fileName[10000],int *sum){
     sort(fileName, fileName + i);
 }
 
-//得到文件名中最长的一个文件名的长度
-
+//得到一列中文件名中最长的一个文件名的长度
+int getnamelen(string *fileName, int sum) {
+    int len = 0;
+    for (int i = 0; i < sum; i++) {
+        if ((fileName + i)->size() > len) {
+            len = (fileName + i)->size();
+        }
+    }
+    return len;
+}
 
 //输出文件名称
 void showdirname(char *dirname) {
@@ -184,14 +195,68 @@ void showdirname(char *dirname) {
    // for (int i = 0; i < 10000; i++) {
    //     fileName[i] = (char*)malloc(sizeof(char) * 100);
    // }
-    string fileName[10000];
+    string fileName[MAX_N];
     int sum = 0;    
     getdirname(dirname, fileName, &sum);
-    for (int i = 0; i < sum; i++) {
-        cout << fileName[i] << endl;
+    int max_list = sum;
+    int col = 1;
+    int line;
+    int last_line;
+    struct winsize size;
+    if (isatty(STDOUT_FILENO) == 0)
+        exit(1);
+    if(ioctl(STDOUT_FILENO, TIOCGWINSZ, &size)<0)
+    {
+        perror("ioctl TIOCGWINSZ error");
+        exit(1);
+    }
+    printf("%d rows, %d columns\n", size.ws_row, size.ws_col);
+    for (int i = 2; i <= ceil(max_list / 2.0); i++) {
+        int width = 0;
+        int sum_width = 0;
+        line = sum / i;
+        last_line = sum % i;
+        for (int j = 0; j < max_list; j++) {
+            sum_width += getnamelen(fileName + j, 1);
+        }
+        for (int j = 0; j < i; j++) {
+            if (j == i - 1) {
+                width += getnamelen(fileName + j * line, last_line);
+            } else {
+                width += getnamelen(fileName + j * line, line);
+            }
+        }
+        width += i;
+        if (line == 1) {
+            if (sum_width < size.ws_col) {
+                col = max_list;
+                line = ceil((double)max_list / col);
+                break;
+            } else {
+                col = ceil(max_list / 2.0);
+                line = ceil((double)max_list / col);
+                break;
+            }
+        }
+        if (width > size.ws_col) {
+            col = i - 1;
+            line = ceil((double)max_list / col);
+            break;
+        }
+        if (i == ceil(max_list / 2.0)) {
+            col = max_list;
+            line = ceil((double)max_list / col);
+        }
+    }
+    cout << "col:"  << col << endl;
+    cout << "line:"  << line << endl;
+    for (int i = 0; i < line; i++) {
+        for (int j = 0 ; j < col; j++) {
+            cout << fileName[i + j * line] << " ";
+        }
+        cout << endl;
     }
 }
-
 
 int main(int argc, char *argv[]) {
     //参数缺省时，默认为当前目录
