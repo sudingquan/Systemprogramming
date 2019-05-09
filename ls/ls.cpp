@@ -119,8 +119,8 @@ void showinfo(char *name) {
     printf("%3d ", file->st_nlink);
     printf("%-15s ", usr->pw_name);
     printf("%-15s ", grp->gr_name);
-    printf("%-20lld ", file->st_size);
-    printf("%2d %2d %02d:%02d ", t->tm_mon + 1, t->tm_mday, t->tm_hour, t->tm_min);
+    printf("%20lld ", file->st_size);
+    printf("%2d月 %2d日 %02d:%02d ", t->tm_mon + 1, t->tm_mday, t->tm_hour, t->tm_min);
     printf("%s\n", name);
     free(file);
 }
@@ -134,11 +134,20 @@ void showdirinfo(char *dirname) {
     }
     struct dirent *entry;
     char pwd[100];
+    string fileName[MAX_N];
     getcwd(pwd, 100);
     chdir(dirname);
     printf("%s:\n", dirname);
+    int i = 0;
     while ((entry = readdir(dir)) != NULL) {
-        showinfo(entry->d_name);
+        fileName[i] = entry->d_name;
+        i++;
+    }
+    sort(fileName, fileName + i);
+    for (int j = 0; j < i; j++) {
+        char cfileName[200];
+        strcpy(cfileName, fileName[j].c_str());
+        showinfo(cfileName);
     }
     chdir(pwd);
 }
@@ -306,7 +315,6 @@ int main(int argc, char *argv[]) {
                 if (ispath(argv[i])) {
                     showdirname(argv[i]);
                 } else {
-                    printf("%s:\n", argv[i]);
                     showname(argv[i]);
                 }
                 if (i < argc - 1) {
