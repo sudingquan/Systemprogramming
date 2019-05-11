@@ -236,7 +236,7 @@ void showdirname(char *dirname) {
             }
         }
         width += i;
-        if (line == 1) {
+        if (line == 1 || i == ceil(max_list / 2.0)) {
             if (sum_width < size.ws_col) {
                 col = max_list;
                 line = ceil((double)max_list / col);
@@ -252,10 +252,12 @@ void showdirname(char *dirname) {
             line = ceil((double)max_list / col);
             break;
         }
-        if (i == ceil(max_list / 2.0)) {
-            col = max_list;
-            line = ceil((double)max_list / col);
-        }
+       // if (i == ceil(max_list / 2.0)) {
+       //     col = max_list;
+       //     line = ceil((double)max_list / col);
+       //     printf("if if\n");
+       //     break;
+       // }
     }
     cout << "col:"  << col << "\t";
     cout << "line:"  << line << endl;
