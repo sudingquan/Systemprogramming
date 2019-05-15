@@ -2,6 +2,10 @@
 ```
 .
 ├── README.md
+├── cp
+│   └── cp.cpp
+├── find
+│   └── find.sh
 ├── homework
 │   ├── ll.c
 │   ├── terminal.c
