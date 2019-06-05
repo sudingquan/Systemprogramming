@@ -53,14 +53,16 @@ int main() {
     if (listen_socket < 0) {
         exit(1);
     }
-    int client_socket = wait_client(listen_socket);
-    if (client_socket < 0) {
-        exit(1);
+    while(1) {    
+        int client_socket = wait_client(listen_socket);
+        if (client_socket < 0) {
+            exit(1);
+        }
+        char username[20];
+        recv(client_socket, username, 20, 0);
+        printf("%s\n",username);
+        close(client_socket);
     }
-    char username[20];
-    recv(client_socket, username, 20, 0);
-    printf("%s\n",username);
-    close(client_socket);
     close(listen_socket);
     return 0;
 }
