@@ -44,7 +44,7 @@ int wait_client(int listen_socket) {
         perror("accept");
         return -1;
     }
-    printf("connection to the client : %s successful\n",inet_ntoa(client_addr.sin_addr));
+    printf("connection to the client  %s successful\n",inet_ntoa(client_addr.sin_addr));
     return client_socket;
 }
 
