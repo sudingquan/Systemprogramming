@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pwd.h>
+#include <sys/wait.h>
 #define PORT 8888
 
 int creat_listen_socket() {
@@ -45,8 +46,17 @@ int wait_client(int listen_socket) {
         perror("accept");
         return -1;
     }
-    printf("connection to the client  %s successful\n",inet_ntoa(client_addr.sin_addr));
+    printf("connection to the client %s successful\n", inet_ntoa(client_addr.sin_addr));
     return client_socket;
+}
+
+void handler(int sig)
+{
+	
+	while (waitpid(-1,  NULL,   WNOHANG) > 0)
+	{
+		printf ("成功处理一个子进程的退出\n");
+	}
 }
 
 int main() {
@@ -59,10 +69,27 @@ int main() {
         if (client_socket < 0) {
             exit(1);
         }
-        char username[20];
-        recv(client_socket, username, 20, 0);
-        printf("%s\n",username);
-        close(client_socket);
+        signal(SIGCHLD,  handler);    //处理子进程，防止僵尸进程的产生
+        int pid = fork();
+		if(pid == -1)
+		{
+			perror("fork");
+			break;
+		}
+		if(pid > 0)
+		{
+			close(client_socket);
+			continue;
+		}
+		if(pid == 0)
+		{
+			close(listen_socket);
+            char username[20];
+            recv(client_socket, username, 20, 0);
+            printf("%s\n",username);
+            close(client_socket);
+			break;
+		}
     }
     close(listen_socket);
     return 0;
