@@ -17,9 +17,10 @@
 │   ├── ll.c
 │   ├── terminal.c
 │   └── terminal_2.0.c
-└── ls
-    ├── README.md
-    └── ls.cpp
+├── ls
+│   ├── README.md
+│   └── ls.cpp
+└── pthread.c
 
-5 directories, 14 files
+5 directories, 15 files
 ```
