@@ -24,7 +24,7 @@ int socket_connect(int port, char *host) {
 	//DBG("Connetion TO %s:%d\n",host,port);
 	//fflush(stdout);
 	if (connect(sockfd, (struct sockaddr *)&dest_addr, sizeof(dest_addr)) < 0) {
-		//perror("connect() error");
+		perror("connect() error");
 		//DBG("connect() error : %s!\n", stderror(errno));
 		return -1;
 	}
@@ -32,15 +32,26 @@ int socket_connect(int port, char *host) {
 
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+    if (argc != 4) {
+        printf("Usage:./client ip port filename\n");
+        exit(1);
+    }
 	int socket_fd;
-	int port = 8888;
-	char ip_addr[20] = "39.105.82.248"; 
+	int port = atoi(argv[2]);
+    char ip_addr[20];
+    if (strcmp(argv[1], "aliyun") == 0) {
+        strcpy(ip_addr, "39.105.82.248");
+    } else {
+        strcpy(ip_addr, argv[1]);
+    }
 	//char ip_addr[20] = "192.168.2.90";
+    char *path = argv[3];
     char file_name[100];
     char data[MAX_SIZE + 5];
-    printf("Enter the file you want to send : ");
-    scanf("%s", file_name);
+    char *p;
+    strcpy(file_name, (p = strrchr(path, '/')) ? p + 1 : path);
+    printf("send %s to %s:%d\n", file_name, ip_addr, port);
     FILE *fp = NULL;
     fp = fopen(file_name, "rb");
     if(fp == NULL){
@@ -50,6 +61,8 @@ int main() {
 	socket_fd = socket_connect(port, ip_addr);
     if(socket_fd > 0){
         printf("connect success!\n");
+    } else {
+        exit(1);
     }
     printf("send filename...\n");
     send(socket_fd, file_name, 100, 0);

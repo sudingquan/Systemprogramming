@@ -71,7 +71,7 @@ int main() {
             exit(1);
         }
         signal(SIGCHLD,  handler);    //处理子进程，防止僵尸进程的产生
-        int pid = fork();
+        pid_t pid = fork();
 		if(pid == -1)
 		{
 			perror("fork");
