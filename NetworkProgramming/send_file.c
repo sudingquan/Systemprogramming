@@ -62,10 +62,19 @@ int main(int argc, char *argv[]) {
     if(socket_fd > 0){
         printf("connect success!\n");
     } else {
+        close(socket_fd);
+        fclose(fp);
+        fp = NULL;
         exit(1);
     }
     printf("send filename...\n");
-    send(socket_fd, file_name, 100, 0);
+    if (send(socket_fd, file_name, 100, 0) < 0) {
+        perror("send");
+        close(socket_fd);
+        fclose(fp);
+        fp = NULL;
+        exit(1);
+    }
     printf("send file...\n");
     while (1) {
         int i;

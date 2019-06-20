@@ -68,12 +68,14 @@ int main() {
     while(1) {    
         int client_socket = wait_client(listen_socket);
         if (client_socket < 0) {
+            close(listen_socket);
             exit(1);
         }
         signal(SIGCHLD,  handler);    //处理子进程，防止僵尸进程的产生
         pid_t pid = fork();
-		if(pid == -1)
+		if (pid == -1)
 		{
+            close(client_socket);
 			perror("fork");
 			break;
 		}
@@ -87,13 +89,20 @@ int main() {
 			close(listen_socket);
             char file_name[100];
             char data[MAX_SIZE + 5];
-            recv(client_socket, file_name, 100, 0);
+            int ret = recv(client_socket, file_name, 100, 0);
+            if (ret != 100) {
+                printf("recv file_name filed\n");
+                close(client_socket);
+                continue;
+            }
             FILE *fp = NULL;
-            fp=fopen(file_name,"wb");
+            fp = fopen(file_name,"wb");
             if (fp == NULL) {
                 printf("open file error\n");
                 close(client_socket);
-                break;
+                fclose(fp);
+                fp = NULL;
+                continue;
             }
             while (1) {
                 int i = recv(client_socket, data, MAX_SIZE, 0);

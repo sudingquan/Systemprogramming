@@ -64,12 +64,19 @@ void handler(int sig)
 void *recv_file(void *client_socket) {
     char file_name[100];
     char data[MAX_SIZE + 5];
-    recv(*(int *)client_socket, file_name, 100, 0);
+    int ret = recv(*(int *)client_socket, file_name, 100, 0);
+    if (ret != 100) {
+        printf("recv file_name failed\n");
+        close(*(int *)client_socket);
+        return NULL;
+    }
     FILE *fp = NULL;
     fp=fopen(file_name,"wb");
     if (fp == NULL) {
         printf("open file error\n");
         close(*(int *)client_socket);
+        fclose(fp);
+        fp = NULL;
         exit(1);
     }
     while (1) {
