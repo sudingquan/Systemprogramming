@@ -35,8 +35,8 @@ int socket_connect(int port, char *host) {
 int main() {
 	int socket_fd;
 	int port = 8888;
-	//char ip_addr[20] = "39.105.82.248"; 
-	char ip_addr[20] = "192.168.2.90"; 
+	char ip_addr[20] = "39.105.82.248"; 
+	//char ip_addr[20] = "192.168.2.90";
     char file_name[100];
     char data[MAX_SIZE + 5];
     printf("Enter the file you want to send : ");
