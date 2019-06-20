@@ -9,7 +9,6 @@
 │   ├── tcp_client.c
 │   └── tcp_server.c
 ├── README.md
-├── and
 ├── cp
 │   └── cp.cpp
 ├── find
@@ -26,5 +25,5 @@
 └── pthread
     └── pthread.c
 
-8 directories, 16 files
+7 directories, 16 files
 ```
