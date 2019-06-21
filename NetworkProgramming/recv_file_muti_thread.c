@@ -71,7 +71,7 @@ void *recv_file(void *client_socket) {
         return NULL;
     }
     FILE *fp = NULL;
-    fp=fopen(file_name,"wb");
+    fp = fopen(file_name,"wb");
     if (fp == NULL) {
         printf("open file error\n");
         close(*(int *)client_socket);
