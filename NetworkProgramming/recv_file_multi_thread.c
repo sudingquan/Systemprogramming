@@ -52,15 +52,6 @@ int wait_client(int listen_socket) {
     return client_socket;
 }
 
-void handler(int sig)
-{
-	
-	while (waitpid(-1,  NULL,   WNOHANG) > 0)
-	{
-		printf ("成功处理一个子进程的退出\n");
-	}
-}
-
 void *recv_file(void *client_socket) {
     char file_name[100];
     char data[MAX_SIZE + 5];
@@ -98,7 +89,7 @@ int main() {
     if (listen_socket < 0) {
         exit(1);
     }
-    while(1) {    
+    while (1) {    
         int client_socket = wait_client(listen_socket);
         if (client_socket < 0) {
             exit(1);
