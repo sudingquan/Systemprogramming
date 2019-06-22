@@ -2,10 +2,12 @@
 ```
 .
 ├── NetworkProgramming
+│   ├── client.c
 │   ├── my_tcp_client.c
 │   ├── recv_file.c
-│   ├── recv_file_muti_thread.c
+│   ├── recv_file_multi_thread.c
 │   ├── send_file.c
+│   ├── server.c
 │   ├── tcp_client.c
 │   └── tcp_server.c
 ├── README.md
@@ -25,5 +27,5 @@
 └── pthread
     └── pthread.c
 
-7 directories, 16 files
+7 directories, 18 files
 ```
