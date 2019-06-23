@@ -2,12 +2,12 @@
 ```
 .
 ├── NetworkProgramming
-│   ├── client.c
+│   ├── game_client.c
+│   ├── game_server.c
 │   ├── my_tcp_client.c
 │   ├── recv_file.c
 │   ├── recv_file_multi_thread.c
 │   ├── send_file.c
-│   ├── server.c
 │   ├── tcp_client.c
 │   └── tcp_server.c
 ├── README.md
