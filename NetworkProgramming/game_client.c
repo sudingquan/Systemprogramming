@@ -14,8 +14,10 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#define MAX_N 100
 
 #define TIME 10000
+
 typedef struct map {
     int left;
     int right;
@@ -23,12 +25,20 @@ typedef struct map {
 } map;
 
 typedef struct position {
-    int x;
-    int y;
+    int px[MAX_N];
+    int py[MAX_N];
+    int bx;
+    int by;
+    int flag;
+    int uid[MAX_N];
 } position;
 
 map map1;
 position pos;
+
+char ball[2] = "o";
+char blank[2] = " ";
+char person[10] = "R";
 
 int socket_connect(int port, char *host) {
 	int sockfd;
@@ -55,11 +65,11 @@ int socket_connect(int port, char *host) {
 }
 
 void init_map(int leftedge, int rightedge, int row) {
-    for (int i = leftedge; i <= rightedge; i++) {
+    for (int i = leftedge; i <= rightedge + 1; i++) {
         move(0, i);
         addstr("-");
     }
-    for (int i = leftedge; i <= rightedge; i++) {
+    for (int i = leftedge; i <= rightedge + 1; i++) {
         move(row + 1, i);
         addstr("-");
     }
@@ -74,7 +84,7 @@ void init_map(int leftedge, int rightedge, int row) {
     return;
 }
 
-void *get_ball_position(void *socket_fd) {
+void *recv_position(void *socket_fd) {
     while (1) {
         if (recv(*(int *)socket_fd, &pos, sizeof(pos), 0) < 0) {
             printf("recv ball position failed\n");
@@ -107,6 +117,33 @@ void recv_map(int socket_fd) {
     }
 }
 
+void *draw(void *arg) {
+    while(1) {
+        int temp1[MAX_N];
+        int temp2[MAX_N];
+        for (int i = 0; i < pos.flag; i++) {
+            move(pos.px[i], pos.py[i]);
+            temp1[i] = pos.px[i];
+            temp2[i] = pos.py[i];
+            addstr(person);
+        }
+        move(pos.bx,pos.by);
+        int x,y;
+        x = pos.bx;
+        y = pos.by;
+        addstr(ball);
+        move(LINES - 1, COLS - 1);
+        refresh();
+        move(x, y);
+        addstr(blank);
+        for (int i = 0; i < pos.flag; i++) {
+            move(temp1[i], temp2[i]);
+            addstr(blank);
+        }
+    }
+    return NULL;
+}
+
 int main(int argc, char *argv[]) {
     if (argc != 3) {
         printf("Usage:./client ip port\n");
@@ -130,24 +167,14 @@ int main(int argc, char *argv[]) {
     }
     recv_map(socket_fd);
 	//close(socket_fd);
-    char ball[2] = "o";
-    char blank[2] = " ";
     initscr();
     clear();
     init_map(map1.left, map1.right, map1.row);
     refresh();
-    pthread_t id1,id2;
-    pthread_create(&id1, NULL, get_ball_position, (void *)&socket_fd);
-    pthread_create(&id2, NULL, send_dir, (void *)&socket_fd);
-    while(1) {
-        move(pos.x, pos.y);
-        int x = pos.x;
-        int y = pos.y;
-        addstr(ball);
-        move(LINES - 1, COLS - 1);
-        refresh();
-        move(x, y);
-        addstr(blank);
-    }
+    pthread_t recv, send, draw_p_b;
+    pthread_create(&recv, NULL, recv_position, (void *)&socket_fd);
+    pthread_create(&send, NULL, send_dir, (void *)&socket_fd);
+    pthread_create(&draw_p_b, NULL, draw, NULL);
+    pthread_join(draw_p_b, NULL);
 	return 0;
 }
