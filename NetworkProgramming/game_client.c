@@ -118,7 +118,7 @@ void recv_map(int socket_fd) {
 }
 
 void *draw(void *arg) {
-    while(1) {
+    while (1) {
         int temp1[MAX_N];
         int temp2[MAX_N];
         for (int i = 0; i < pos.flag; i++) {
