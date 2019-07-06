@@ -13,6 +13,16 @@
 
 int main() {
     FILE *fp = fopen(PATH, "w");
-    flock(fp->_sfileno(fp), LOCK_EX);
-    return 0;
+    if (fp == NULL) {
+        perror("fopen");
+    }
+    pid_t pid;
+    flock(fileno(fp), LOCK_EX);
+    printf("已上锁\n");
+    int n = 10;
+    while (n--) {
+        sleep(1);
+        printf("%d\n", n);
+    }
+    return 0l;
 }
