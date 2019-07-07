@@ -88,7 +88,7 @@ int main() {
         }
         exit(0);
     }
-    int n = 10;
+    int n = PROCESS_NUM;
     while (n--) {
         waitpid(-1, NULL, 0);
     }
