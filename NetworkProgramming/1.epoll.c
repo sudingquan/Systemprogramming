@@ -27,7 +27,7 @@ typedef struct UserData {
     char msg[MAX_BUFF];
 } UserData;
 
-UserData userdata[MAX_CLIENTS] = NULL;
+UserData userdata[MAX_CLIENTS];
 
 int creat_listen_socket() {
     int listen_socket;
@@ -83,8 +83,9 @@ int main() {
             exit(EXIT_FAILURE);
         }
         for (int n = 0; n < nfds; ++n) {
-            UserData *user_d = (UserData *)events[n].data.ptr;
-            if (events[n].data.fd == listen_sock) {
+            UserData *user_evs = (UserData *)events[n].data.ptr;
+            UserData *user_ev = (UserData *)ev.data.ptr;
+            if (user_evs->fd == listen_sock) {
                 conn_sock = accept(listen_sock, (struct sockaddr *) &client_addr, &addrlen);
                 if (conn_sock == -1) {
                     perror("accept");
@@ -93,32 +94,37 @@ int main() {
                 int imode = 1;
                 ioctl(conn_sock, FIONBIO, &imode); //将新连接设置成非阻塞状态
                 ev.events = EPOLLIN | EPOLLET; //将新连接加入epoll监听
-                ev.data.fd = conn_sock;
+                userdata[conn_sock].fd = conn_sock;
+                ev.data.ptr = &userdata[conn_sock];
                 if (epoll_ctl(epollfd, EPOLL_CTL_ADD, conn_sock, &ev) == -1) {
                     perror("epoll_ctl: conn_sock");
                     exit(EXIT_FAILURE);
                 }
             } else if (events[n].events & EPOLLIN) {
-				int client_sock = events[n].data.fd;
+				int client_sock = user_evs->fd;
                 int num;
-                num = recv(client_sock, buff, MAX_BUFF, 0);
+                memset(&userdata[client_sock], 0, sizeof(UserData));
+                num = recv(client_sock, user_evs->msg, MAX_BUFF, 0);
                 ev.events = EPOLLOUT;
-                ev.data.fd = client_sock;
+                userdata[client_sock].fd = client_sock;
+                ev.data.ptr = &userdata[client_sock];
             	if (num <= 0) {
                 	epoll_ctl(epollfd, EPOLL_CTL_DEL, client_sock, &ev);
                     getpeername(client_sock, (struct sockaddr *)&client_addr, &addrlen);
                     printf("<%s> exit !\n", inet_ntoa(client_addr.sin_addr));
+                    memset(&userdata[client_sock], 0, sizeof(UserData));
                 	close(client_sock);
                 	continue;
 				}
                 epoll_ctl(epollfd, EPOLL_CTL_MOD, client_sock, &ev);
             } else if (events[n].events & EPOLLOUT) {
-				int client_sock = events[n].data.fd;
+				int client_sock = user_evs->fd;
                 ev.events = EPOLLIN;
-                ev.data.fd = events[n].data.fd;
+                userdata[client_sock].fd = client_sock;
+                ev.data.ptr = &userdata[client_sock];
                 getpeername(client_sock, (struct sockaddr *)&client_addr, &addrlen);
-                printf("<%s> : %s", inet_ntoa(client_addr.sin_addr), buff);
-                num = send(client_sock, buff, strlen(buff), 0);
+                printf("<%s> : %s", inet_ntoa(client_addr.sin_addr), user_evs->msg);
+                num = send(client_sock, user_evs->msg, strlen(user_evs->msg), 0);
                 if (num > 0 ) {
                     printf(" [send !]\n");
                 } else {
