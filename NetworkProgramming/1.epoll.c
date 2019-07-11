@@ -1,10 +1,9 @@
 /*************************************************************************
-	> File Name: epoll.c
+	> File Name: 1.epoll.c
 	> Author: sudingquan
 	> Mail: 1151015256@qq.com
-	> Created Time: 二  7/9 19:46:44 2019
+	> Created Time: 四  7/11 20:46:44 2019
  ************************************************************************/
-
 
 #include <stdio.h>
 #include <sys/socket.h>
@@ -20,6 +19,15 @@
 #define PORT 8888
 #define MAX_EVENTS 10
 #define MAX_BUFF 100
+#define MAX_CLIENTS 1000
+
+typedef struct UserData {
+    int fd;
+    char name[20];
+    char msg[MAX_BUFF];
+} UserData;
+
+UserData userdata[MAX_CLIENTS] = NULL;
 
 int creat_listen_socket() {
     int listen_socket;
@@ -60,7 +68,8 @@ int main() {
     }
 
     ev.events = EPOLLIN;
-    ev.data.fd = listen_sock;
+    userdata[listen_sock].fd = listen_sock;
+    ev.data.ptr = &userdata[listen_sock];
 
     if (epoll_ctl(epollfd, EPOLL_CTL_ADD, listen_sock, &ev) == -1) {
         perror("epoll_ctl: listen_sock");
@@ -74,6 +83,7 @@ int main() {
             exit(EXIT_FAILURE);
         }
         for (int n = 0; n < nfds; ++n) {
+            UserData *user_d = (UserData *)events[n].data.ptr;
             if (events[n].data.fd == listen_sock) {
                 conn_sock = accept(listen_sock, (struct sockaddr *) &client_addr, &addrlen);
                 if (conn_sock == -1) {
