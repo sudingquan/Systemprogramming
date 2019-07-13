@@ -1,8 +1,8 @@
 /*************************************************************************
-	> File Name: server.c
-	> Author : sudingquan
-	> Mail : 1151015256@qq.com
-	> Created Time: Sat Jun 22 14:25:05 2019
+	> File Name: game_epoll_server.cpp
+	> Author: sudingquan
+	> Mail: 1151015256@qq.com
+	> Created Time: 五  7/12 00:35:29 2019
  ************************************************************************/
 
 #include <stdio.h>
@@ -211,20 +211,6 @@ void send_map(int client_socket) {
     return;
 }
 
-//void *update(void *argv) {
-//    while (1) {
-//        move(pos.x, pos.y);
-//        int x = pos.x;
-//        int y = pos.y;
-//        addstr(ball);
-//        move(LINES - 1, COLS - 1);
-//        refresh();
-//        move(x, y);
-//        addstr(blank);
-//    }
-//    return NULL;
-//}
-//
 int main() {
     pthread_t recv_d[MAX_N];
     pthread_t send[MAX_N];
