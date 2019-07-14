@@ -229,7 +229,9 @@ void send_map(int client_socket) {
 
 void *temp1(void *i) {
     while (1){
+        printf("Sleep...\n");
         sleep(20000);
+        printf("Sleep disruption\n");
     }
 }
 
@@ -320,8 +322,6 @@ int main() {
                 	epoll_ctl(epollfd, EPOLL_CTL_DEL, client_sock, &ev);
                     printf("<%s> exit !\n", inet_ntoa(client_addr.sin_addr));
                     pos.num -= 1;
-                    //pos.px[client_sock] = -1;
-                    //pos.py[client_sock] = -1;
                     for (int i = 0; i < max_num; i++) {
                         if(pos.uid[i] != client_sock) continue;
                         pos.uid[i] = -1;

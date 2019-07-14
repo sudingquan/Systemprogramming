@@ -84,6 +84,21 @@ void init_map(int leftedge, int rightedge, int row) {
     return;
 }
 
+void draw_middle_line(int left, int right, int row) {
+    for (int i = left; i <= right; i++) {
+        move((row + 1) / 2, i);
+        addstr("-");
+    }
+    for (int i = 1; i <= row; i++) {
+        move(i, (right - left) / 2);
+        addstr("|");
+    }
+}
+
+void draw_score(int left, int right, int row) {
+    
+}
+
 void *recv_position(void *socket_fd) {
     while (1) {
         if (recv(*(int *)socket_fd, &pos, sizeof(pos), 0) < 0) {
@@ -121,6 +136,7 @@ void *draw(void *arg) {
     while (1) {
         int temp1[MAX_N];
         int temp2[MAX_N];
+        draw_middle_line(map1.left, map1.right, map1.row);
         for (int i = 0; i < pos.num; i++) {
             move(pos.px[pos.uid[i]], pos.py[pos.uid[i]]);
             temp1[pos.uid[i]] = pos.px[pos.uid[i]];
