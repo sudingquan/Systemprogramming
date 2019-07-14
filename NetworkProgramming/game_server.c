@@ -21,7 +21,7 @@
 #define RIGHTEDGE 56
 #define ROW 35
 #define TIME 10000
-#define MAX_N 100
+#define MAX_N 10000
 #define MAX_STEP 15
 
 typedef struct map {
@@ -41,10 +41,6 @@ typedef struct position {
 
 map map1;
 position pos;
-
-char ball[2] = "o";
-char blank[2] = " ";
-char person[10] = "R";
 
 int client_socket[MAX_N];
 
@@ -211,32 +207,18 @@ void send_map(int client_socket) {
     return;
 }
 
-//void *update(void *argv) {
-//    while (1) {
-//        move(pos.x, pos.y);
-//        int x = pos.x;
-//        int y = pos.y;
-//        addstr(ball);
-//        move(LINES - 1, COLS - 1);
-//        refresh();
-//        move(x, y);
-//        addstr(blank);
-//    }
-//    return NULL;
-//}
-//
 int main() {
     pthread_t recv_d[MAX_N];
     pthread_t send[MAX_N];
     pos.bx = (1 + ROW) / 2;
     pos.by = (RIGHTEDGE - LEFTEDGE) / 2;
     pos.num = 0;
-    initscr();
-    clear();
+    //initscr();
+    //clear();
     map1.left = LEFTEDGE;
     map1.right = RIGHTEDGE;
     map1.row = ROW;
-    init_map();
+    //init_map();
     int listen_socket = creat_listen_socket();
     if (listen_socket < 0) {
         exit(1);

@@ -16,7 +16,7 @@
 #include <string.h>
 #define MAX_N 1000
 
-#define TIME 10000
+#define TIME 50000
 
 typedef struct map {
     int left;
@@ -29,7 +29,7 @@ typedef struct position {
     int py[MAX_N];
     int bx;
     int by;
-    int num;
+    int flag;
     int uid[MAX_N];
 } position;
 
@@ -86,11 +86,14 @@ void init_map(int leftedge, int rightedge, int row) {
 
 void *recv_position(void *socket_fd) {
     while (1) {
-        if (recv(*(int *)socket_fd, &pos, sizeof(pos), 0) < 0) {
+        int ret;
+        if ((ret = recv(*(int *)socket_fd, &pos, sizeof(pos), 0)) < 0) {
             printf("recv ball position failed\n");
             close(*(int *)socket_fd);
             exit(1);
         }
+        printf("ret = %d sizeof(pos) = %d\n", ret, sizeof(pos));
+        printf("num = %d, pos.px = %d, pos.py = %d\n", pos.flag, pos.px[pos.uid[pos.flag - 1]], pos.py[pos.uid[pos.flag - 1]]);
         usleep(TIME);
     }
     return NULL;
@@ -121,7 +124,7 @@ void *draw(void *arg) {
     while (1) {
         int temp1[MAX_N];
         int temp2[MAX_N];
-        for (int i = 0; i < pos.num; i++) {
+        for (int i = 0; i < pos.flag; i++) {
             move(pos.px[pos.uid[i]], pos.py[pos.uid[i]]);
             temp1[pos.uid[i]] = pos.px[pos.uid[i]];
             temp2[pos.uid[i]] = pos.py[pos.uid[i]];
@@ -136,7 +139,7 @@ void *draw(void *arg) {
         refresh();
         move(x, y);
         addstr(blank);
-        for (int i = 0; i < pos.num; i++) {
+        for (int i = 0; i < pos.flag; i++) {
             move(temp1[pos.uid[i]], temp2[pos.uid[i]]);
             addstr(blank);
         }
@@ -165,16 +168,16 @@ int main(int argc, char *argv[]) {
         close(socket_fd);
         exit(1);
     }
-    recv_map(socket_fd);
+    //recv_map(socket_fd);
 	//close(socket_fd);
-    initscr();
-    clear();
-    init_map(map1.left, map1.right, map1.row);
+    //initscr();
+    //clear();
+    //init_map(map1.left, map1.right, map1.row);
     refresh();
     pthread_t recv, send, draw_p_b;
     pthread_create(&recv, NULL, recv_position, (void *)&socket_fd);
     pthread_create(&send, NULL, send_dir, (void *)&socket_fd);
-    pthread_create(&draw_p_b, NULL, draw, NULL);
-    pthread_join(draw_p_b, NULL);
+    //pthread_create(&draw_p_b, NULL, draw, NULL);
+    pthread_join(recv, NULL);
 	return 0;
 }
