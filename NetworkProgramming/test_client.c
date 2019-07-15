@@ -14,7 +14,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
-#define MAX_N 1000
+#define MAX_N 200
 
 #define TIME 50000
 

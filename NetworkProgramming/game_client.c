@@ -14,7 +14,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
-#define MAX_N 1000
+#define MAX_N 200
 
 #define TIME 10000
 
@@ -36,7 +36,7 @@ typedef struct position {
 map map1;
 position pos;
 
-char ball[2] = "o";
+char ball[2] = "O";
 char blank[2] = " ";
 char person[10] = "R";
 

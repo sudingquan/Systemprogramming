@@ -21,7 +21,7 @@
 #define RIGHTEDGE 56
 #define ROW 35
 #define TIME 10000
-#define MAX_N 10000
+#define MAX_N 1000
 #define MAX_STEP 15
 
 typedef struct map {
