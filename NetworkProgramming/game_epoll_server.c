@@ -6,7 +6,7 @@
  ************************************************************************/
 
 #include <stdio.h>
-#include <curses.h>
+//#include <curses.h>
 #include <pthread.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -21,8 +21,8 @@
 #include <signal.h>
 
 #define PORT 8888
-#define LEFTEDGE 1
-#define RIGHTEDGE 151
+#define LEFTEDGE 10
+#define RIGHTEDGE 160
 #define ROW 35
 #define TIME 10000
 #define MAX_N 200
@@ -52,7 +52,7 @@ struct itimerval timer;
 
 int epollfd;
 
-int max_num;
+int true_num;
 
 Map map1;
 Position pos;
@@ -80,7 +80,7 @@ int creat_listen_socket() {
 }
 
 void ready_to_send() {
-    for (int i = 0; i < max_num; i++) {
+    for (int i = 0; i < pos.num; i++) {
         if (pos.uid[i] == -1) continue;
         struct epoll_event ev;
         ev.events = EPOLLOUT;
@@ -114,7 +114,7 @@ void ball_move() {
         ready_to_send(epollfd);
     } else {
         pos.bx = (1 + ROW) / 2;
-        pos.by = (RIGHTEDGE - LEFTEDGE) / 2;
+        pos.by = LEFTEDGE + (RIGHTEDGE - LEFTEDGE) / 2;
         mv.x = 0;
         mv.y = 0;
         ready_to_send(epollfd);
@@ -229,9 +229,9 @@ void send_map(int client_socket) {
 
 void *temp1(void *i) {
     while (1){
-        printf("Sleep...\n");
+        //printf("Sleep...\n");
         sleep(20000);
-        printf("Sleep disruption\n");
+        //printf("Sleep disruption\n");
     }
 }
 
@@ -262,8 +262,9 @@ int main() {
     }
 
     pos.bx = (1 + ROW) / 2;
-    pos.by = (RIGHTEDGE - LEFTEDGE) / 2;
+    pos.by = LEFTEDGE + (RIGHTEDGE - LEFTEDGE) / 2;
     pos.num = 0;
+    true_num = pos.num;
 
     map1.left = LEFTEDGE;
     map1.right = RIGHTEDGE;
@@ -304,15 +305,17 @@ int main() {
                 }
                 pos.uid[pos.num] = conn_sock;
                 pos.num++;
-                max_num = pos.num;
+                true_num++;
                 srand(time(NULL));
                 pos.px[conn_sock] = rand() % (ROW - 1) + 1;
                 pos.py[conn_sock] = rand() % (RIGHTEDGE - LEFTEDGE) + LEFTEDGE;
+                printf("new player join !\n");
+                printf("uid = %d, x = %d, y = %d\n", conn_sock, pos.px[conn_sock], pos.py[conn_sock]);
+                printf("now player number is %d\n", true_num);
                 send_map(conn_sock);
             } else if (events[n].events & EPOLLIN) {
 			    int client_sock = events[n].data.fd;
                 int ret;
-                printf("<%s> : recv_dir \n", inet_ntoa(client_addr.sin_addr));
                 ret = recv_dir(client_sock);
                 ready_to_send();
                 ev.events = EPOLLOUT;
@@ -320,12 +323,15 @@ int main() {
                 getpeername(client_sock, (struct sockaddr *)&client_addr, &addrlen);
                 if (ret < 0) {
                 	epoll_ctl(epollfd, EPOLL_CTL_DEL, client_sock, &ev);
-                    printf("<%s> exit !\n", inet_ntoa(client_addr.sin_addr));
-                    pos.num -= 1;
-                    for (int i = 0; i < max_num; i++) {
+                    printf("<%s> : player exit !\n", inet_ntoa(client_addr.sin_addr));
+                    printf("player uid is %d\n", client_sock);
+                    true_num -= 1;
+                    for (int i = 0; i < pos.num; i++) {
                         if(pos.uid[i] != client_sock) continue;
+                        printf("uid reset success\n");
                         pos.uid[i] = -1;
                     }
+                    printf("now player number is %d\n", true_num);
                 	close(client_sock);
                 	continue;
 			    }
@@ -341,7 +347,7 @@ int main() {
                     printf("send ball position failed\n");
                     continue;
                 }
-                printf("send success !\n");
+                printf("send to player : <%d> success !\n",client_sock);
                 epoll_ctl(epollfd, EPOLL_CTL_MOD, client_sock, &ev);
             }
         }

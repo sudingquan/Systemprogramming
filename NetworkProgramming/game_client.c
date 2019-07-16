@@ -90,7 +90,7 @@ void draw_middle_line(int left, int right, int row) {
         addstr("-");
     }
     for (int i = 1; i <= row; i++) {
-        move(i, (right - left) / 2);
+        move(i, left + (right - left) / 2);
         addstr("|");
     }
 }
@@ -138,6 +138,7 @@ void *draw(void *arg) {
         int temp2[MAX_N];
         draw_middle_line(map1.left, map1.right, map1.row);
         for (int i = 0; i < pos.num; i++) {
+            if (pos.uid[i] == -1) continue;
             move(pos.px[pos.uid[i]], pos.py[pos.uid[i]]);
             temp1[pos.uid[i]] = pos.px[pos.uid[i]];
             temp2[pos.uid[i]] = pos.py[pos.uid[i]];
@@ -153,6 +154,7 @@ void *draw(void *arg) {
         move(x, y);
         addstr(blank);
         for (int i = 0; i < pos.num; i++) {
+            if (pos.uid[i] == -1) continue;
             move(temp1[pos.uid[i]], temp2[pos.uid[i]]);
             addstr(blank);
         }
