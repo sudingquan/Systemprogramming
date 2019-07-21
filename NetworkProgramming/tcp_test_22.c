@@ -31,12 +31,12 @@ int socket_connect(int port, char *host) {
     FD_ZERO(&wfds);
     FD_SET(sockfd, &wfds);
     timeout.tv_sec = 0;
-    timeout.tv_usec = 100000;
+    timeout.tv_usec = 300000;
     unsigned long imode = 1;
 
     int error = -1;
     int len = sizeof(error);
-    int ret;
+    int ret = -1;
 
     ioctl(sockfd, FIONBIO, &imode);
     int n = connect(sockfd, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
@@ -61,9 +61,9 @@ int socket_connect(int port, char *host) {
 int main() {
 	int  socket_fd;
 	char ip_addr[20] = {0}; 
-	int port = 22;
-    for (int i = 1; i <= 255; i++) {
-        sprintf(ip_addr, "192.168.2.%d", i);
+	int port = 8888;
+    for (int i = 30; i <= 60; i++) {
+        sprintf(ip_addr, "192.168.1.%d", i);
         if (socket_connect(port, ip_addr) == 0) {
             printf("%s\n", ip_addr);
         }
