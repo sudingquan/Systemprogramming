@@ -24,5 +24,5 @@ int main() {
         sleep(1);
         printf("%d\n", n);
     }
-    return 0l;
+    return 0;
 }
